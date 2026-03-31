@@ -22,8 +22,27 @@ def get_column_types(data):
 
 # Insert the data into the SQLite database
 def insert_data(data, db="database.db", table_name="table"):
-    # Get column types from the csv data
+    
+    conn = sqlite3.connect(db)
+    cursor = conn.cursor()
+
+    # Get column types
     column_types = get_column_types(data)
-    
-    
-    
+
+    # Create table
+    columns_with_types = ", ".join([
+        f"{col} {dtype}" for col, dtype in column_types.items()
+    ])
+
+    create_query = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns_with_types});"
+    cursor.execute(create_query)
+
+    # Insert data
+    placeholders = ", ".join(["?" for _ in data.columns])
+    insert_query = f"INSERT INTO {table_name} VALUES ({placeholders})"
+
+    for _, row in data.iterrows():
+        cursor.execute(insert_query, tuple(row))
+
+    conn.commit()
+    conn.close()
