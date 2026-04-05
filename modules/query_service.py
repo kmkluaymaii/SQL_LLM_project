@@ -60,14 +60,11 @@ def execute_sql(db_path, sql):
         return df, None
     except Exception as e:
         return None, str(e)
-    
-import sqlite3
-DB_PATH = "data/spotify.db"
 
 # Interactive CLI for querying the database
 def cli_loop(db_path):
-    print("Welcome to the SQLite Query Service!")
-    print("Commands: list tables | list columns | load <csv_file_path> | query | exit\n")
+    print("\nWelcome to the SQLite Query Service!")
+    print("Commands: list tables | list columns | load <csv_file_path> | query | exit")
 
     while True:
         cmd = input(">>> ").strip()
