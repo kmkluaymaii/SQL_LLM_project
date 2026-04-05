@@ -8,7 +8,8 @@ This project is themed around music and movies, and comes with two sample datase
 ### System Overview
 This project converts CSV files into a SQLite databse, uses an LLM to convert natural language questions into SQL queries, validates and executes those queries, and returns results via a CLI interface
 
-<img width="1440" height="1312" alt="image" src="https://github.com/user-attachments/assets/a3b316e5-232e-44a8-89a9-6a1a4e4dbee0" />
+<img width="1384" height="1424" alt="image" src="https://github.com/user-attachments/assets/6270adb1-f313-4fe5-b649-d8e992dbafe3" />
+
 <sub>Generated with assistance from Claude AI</sub>
 
 ### Defined Modules
