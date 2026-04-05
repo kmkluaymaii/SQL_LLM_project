@@ -4,7 +4,7 @@ import pandas as pd
 from io import StringIO
 
 from modules.query_service import list_tables, list_columns, validate_sql, execute_sql
-from modules.data_loader import load_data, get_column_types, insert_data
+# from modules.data_loader import load_data, get_column_types, insert_data
 from modules.schema_manager import create_table, infer_schema, resolve_schema, append_csv_to_table
 
 class TestCLIModule(unittest.TestCase):
