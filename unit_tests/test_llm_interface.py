@@ -1,13 +1,8 @@
-# test_llm_interface.py
-import unittest
+from unittest import TestCase
 from unittest.mock import patch, MagicMock
+from modules.llm_interface import call_llm, build_schema_context, build_prompt, generate_sql
 
-# Patch the OpenAI client before importing llm_interface
-with patch("modules.llm_interface.OpenAI") as mock_openai_client:
-    mock_openai_client.return_value = MagicMock()
-    from modules.llm_interface import build_schema_context, build_prompt, call_llm, generate_sql
-
-class TestLLMInterface(unittest.TestCase):
+class TestLLMInterface(TestCase):
     def setUp(self):
         self.schema_dict = {
             "spotify_data": {
@@ -28,18 +23,32 @@ class TestLLMInterface(unittest.TestCase):
         self.assertIn(self.user_query, prompt)
         self.assertIn("spotify_data", prompt)
 
-    @patch("modules.llm_interface.client.chat.completions.create")
-    def test_call_llm_success(self, mock_create):
+    @patch("modules.llm_interface.get_client")
+    def test_call_llm_success(self, mock_get_client):
+        # Mock the client and its response
+        mock_client = MagicMock()
         mock_response = MagicMock()
         mock_response.choices = [MagicMock()]
-        mock_response.choices[0].message.content = (
-            '{"sql": "SELECT * FROM spotify_data;", "explanation": "Select all tracks."}'
-        )
-        mock_create.return_value = mock_response
+        mock_response.choices[0].message.content = '{"sql": "SELECT * FROM spotify_data;", "explanation": "Select all tracks."}'
+        mock_client.chat.completions.create.return_value = mock_response
+        mock_get_client.return_value = mock_client
 
         result = call_llm("dummy prompt")
         self.assertEqual(result["sql"], "SELECT * FROM spotify_data;")
         self.assertEqual(result["explanation"], "Select all tracks.")
+
+    @patch("modules.llm_interface.get_client")
+    def test_call_llm_invalid_json(self, mock_get_client):
+        mock_client = MagicMock()
+        mock_response = MagicMock()
+        mock_response.choices = [MagicMock()]
+        mock_response.choices[0].message.content = "Not JSON"
+        mock_client.chat.completions.create.return_value = mock_response
+        mock_get_client.return_value = mock_client
+
+        result = call_llm("dummy prompt")
+        self.assertEqual(result["sql"], "")
+        self.assertIn("Failed to parse JSON", result["explanation"])
 
     @patch("modules.llm_interface.call_llm")
     def test_generate_sql_returns_expected(self, mock_call_llm):
@@ -50,7 +59,3 @@ class TestLLMInterface(unittest.TestCase):
         sql, explanation = generate_sql(self.user_query, self.schema_dict)
         self.assertEqual(sql, "SELECT * FROM spotify_data;")
         self.assertEqual(explanation, "Select all tracks.")
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -3,10 +3,12 @@ from openai import OpenAI
 import os
 import json
 
+
 # Draw api key from .env
-load_dotenv()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-client = OpenAI(api_key=OPENAI_API_KEY)
+def get_client():
+    load_dotenv()   
+    api_key = os.getenv("OPENAI_API_KEY", "DUMMY_KEY")  # fallback for tests
+    return OpenAI(api_key=api_key)
 
 # Convert schema into a readable string for the LLM
 def build_schema_context(schema_dict):
@@ -34,6 +36,7 @@ def build_prompt(user_query, schema_dict):
 def call_llm(prompt):
     """Call OpenAI model and enforce JSON output."""
     try:
+        client = get_client()
         response = client.chat.completions.create(
             model="gpt-5-mini",
             messages=[
